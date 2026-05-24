@@ -4,18 +4,18 @@
 #include <vector>
 class Instancia
 {
-    public:
+public:
     std::vector<unsigned int> tabuleiro;
-    std::vector<std::vector<unsigned int>> matriz_distancia
-}
+    std::vector<std::vector<unsigned int>> matriz_distancia;
+};
 
 class State
 {
-    public:
+public:
     std::vector<unsigned int> estado;
     double custo;
     int pos_vazio;
     int custo_h;
-}
+};
 
 #endif
