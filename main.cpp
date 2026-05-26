@@ -1,6 +1,6 @@
 #include <iostream>
 #include <vector>
-#include <iomanip> // Necessário para o std::setw()
+#include <iomanip>
 #include "Bibliotecas\Estruturas.hpp"
 #include "Bibliotecas\PuzzleParser.hpp"
 
