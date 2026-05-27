@@ -73,6 +73,7 @@ std::vector<State *> getNeighbors(State *estado_atual, int tamanho_grid)
 
     return neighbors;
 }
+
 unsigned int findZero(const Instancia &instancia)
 {
     for (size_t i = 0; i < instancia.tabuleiro.size(); i++)
@@ -90,11 +91,13 @@ void printState(const std::vector<unsigned int> &state)
     }
     std::cout << std::endl;
 }
+
 // temos que criar a heurística
 int calcula_heuristica()
 {
     return 0;
 }
+
 void executaA_estrela(const Instancia &instancia, int tamanho_grid)
 {
     std::priority_queue<State *, std::vector<State *>, Comparador> queue;
@@ -143,7 +146,37 @@ void executaA_estrela(const Instancia &instancia, int tamanho_grid)
         }
     }
 }
-void executaIDA_estrela()
+int recursiveSearch(std::vector<unsigned int> estado, int limite, int g, std::vector<std::vector<unsigned int>> current_path,
+                    int &iteracoes)
 {
+    int h = calcula_heuristica();
+}
+
+void executaIDA_estrela(const Instancia &instancia, int tamanho_grid)
+{
+    int limite = calcula_heuristica();
+    std::vector<std::vector<unsigned int>> current_path;
+    current_path.push_back(instancia.tabuleiro);
+    int result = 0;
+    int iteracoes = 0;
+
+    while (true)
+    {
+        result = recursiveSearch(instancia.tabuleiro, limite, 0, current_path, iteracoes);
+
+        if (result == 0)
+        {
+            std::cout << "Resultado Encontrado" << std::endl;
+            std::cout << "Quantidade de Iteracoes" << std::endl;
+        }
+
+        else if (result == -1)
+        {
+            std::cout << "Este tabuleiro não possui solução" << std::endl;
+            return;
+        }
+
+        limite = result;
+    }
     return;
 }
