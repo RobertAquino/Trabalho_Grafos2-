@@ -4,7 +4,7 @@ MAIN := main
 # Lista de objetos (arquivos .o que serão gerados a partir dos .cpp)
 # Como PuzzleParser e Estruturas são apenas arquivos .hpp (header-only), 
 # eles não geram arquivos .o separados. Temos apenas o main.o por enquanto.
-OBJECTS := main.o
+OBJECTS := main.o MotorBusca.o
 
 # Compilador e Flags
 CC := g++
@@ -35,12 +35,16 @@ $(OUTPUTMAIN): $(OBJECTS)
 
 # Regra para compilar o main.o
 # Ele depende do main.cpp e dos headers incluídos na pasta Bibliotecas
-main.o: main.cpp Bibliotecas/Estruturas.hpp Bibliotecas/PuzzleParser.hpp
+main.o: main.cpp Bibliotecas/Estruturas.hpp Bibliotecas/PuzzleParser.hpp Bibliotecas/MotorBusca.hpp
 	$(CC) $(FLAGS) -c main.cpp -o main.o
+
+
+MotorBusca.o: Src/MotorBusca.cpp Bibliotecas/MotorBusca.hpp Bibliotecas/Estruturas.hpp
+	$(CC) $(FLAGS) -c Src/MotorBusca.cpp -o MotorBusca.o
 
 # Limpeza de arquivos temporários (Adaptada para funcionar em Windows e Linux)
 clean:
-	-$(RM) main.o
+	-$(RM) main.o MotorBusca.o
 	-$(RM) $(OUTPUTMAIN)
 	@echo Limpeza de arquivos .o e executaveis completa!
 

@@ -4,17 +4,29 @@
 #include "Estruturas.hpp"
 #include <vector>
 
-class MotorBusca {
+class MotorBusca
+{
 public:
-
     // A função que testa a vitória
-    bool isGoal(const std::vector<unsigned int>& estado_atual, int tamanho_grid);
-    
+    bool isGoal(const std::vector<unsigned int> &estado_atual, int tamanho_grid);
+
     // A função que gera as próximas jogadas válidas
-    std::vector<State*> getNeighbors(State* estado_atual, int tamanho_grid);
-    
+    std::vector<State *> getNeighbors(State *estado_atual, int tamanho_grid);
+
     // O algoritmo principal
-    void executarDijkstra(const Instancia& instancia, int tamanho_grid);
+    // void executarDijkstra(const Instancia &instancia, int tamanho_grid);
+
+    void executaA_estrela(Instancia &instancia, int tamanho_grid);
+
+    // void executaIDA_estrela(const Instancia &instancia, int tamanho_grid);
+
+    void preencherMatrizDistancia(Instancia &instancia, int tamanho_grid);
+
+    int calcula_heuristica(const std::vector<unsigned int> &estado, const std::vector<std::vector<unsigned int>> &matriz_distancia);
+
+    void imprimirCaminho(State *objetivo, int tamanho_grid);
+
+    unsigned int findZero(const Instancia &instancia);
 };
 
 #endif

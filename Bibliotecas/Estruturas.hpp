@@ -13,10 +13,10 @@ class State
 {
 public:
     std::vector<unsigned int> estado;
-    State *parent;
     double custo;
     int pos_vazio;
     int custo_h;
+    State *parent;
 
 public:
     State(std::vector<unsigned int> est, double c, int pos, int h, State *p) : estado(est), custo(c), pos_vazio(pos), custo_h(h), parent(p) {}
@@ -28,7 +28,8 @@ public:
 
 class HashFunction
 {
-    size_t operator()(const std::vector<unsigned int> &vector)
+public:
+    size_t operator()(const std::vector<unsigned int> &vector) const
     {
         size_t hash = 0;
 
@@ -43,7 +44,8 @@ class HashFunction
 
 class Comparador
 {
-    size_t operator()(const State *a, const State *b)
+public:
+    size_t operator()(const State *a, const State *b) const
     {
         return a->getF() > b->getF();
     }
