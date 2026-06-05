@@ -7,6 +7,34 @@ class Instancia
 public:
     std::vector<unsigned int> tabuleiro;
     std::vector<std::vector<unsigned int>> matriz_distancia;
+
+    void preencherMatrizDistancia(Instancia &instancia, int tamanho_grid)
+    {
+        int num_pecas = tamanho_grid * tamanho_grid;
+
+        // redimensiona a matriz para [peca][posicao_atual]
+        instancia.matriz_distancia.assign(num_pecas, std::vector<unsigned int>(num_pecas, 0));
+
+        for (int peca = 1; peca < num_pecas; peca++)
+        {
+            // enconta o local correto da peca
+            int target_idx = peca;
+            int target_row = target_idx / tamanho_grid;
+            int target_col = target_idx % tamanho_grid;
+
+            for (int pos = 0; pos < num_pecas; pos++)
+            {
+                int current_row = pos / tamanho_grid;
+                int current_col = pos % tamanho_grid;
+
+                // fórmula - Distancia de Manhattan: |x1 - x2| + |y1 - y2|
+                int dist = std::abs(current_row - target_row) + std::abs(current_col - target_col);
+
+                // salva na matriz
+                instancia.matriz_distancia[peca][pos] = dist;
+            }
+        }
+    }
 };
 
 class State

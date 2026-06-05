@@ -1,4 +1,5 @@
 #include "../Bibliotecas/MotorBusca.hpp"
+#include "../Bibliotecas/Heuristicas.hpp"
 #include <queue>
 #include <unordered_set>
 #include <cmath>
@@ -24,16 +25,6 @@ bool MotorBusca::isGoal(const std::vector<unsigned int> &estado_atual, int grid_
     return true;
 }
 
-// std::vector<unsigned int> copy(State *estado_atual)
-// {
-//     std::vector<unsigned int> temp;
-//     for (size_t i = 0; i < estado_atual->estado.size(); i++)
-//     {
-//         temp.push_back(estado_atual->estado[i]);
-//     }
-//     return temp;
-// }
-
 std::vector<State *> MotorBusca::getNeighbors(State *estado_atual, int tamanho_grid)
 {
     std::vector<State *> neighbors;
@@ -43,7 +34,6 @@ std::vector<State *> MotorBusca::getNeighbors(State *estado_atual, int tamanho_g
 
     if (pos_vazio >= tamanho_grid)
     {
-        // std::vector<unsigned int> newVector = copy(estado_atual);
         std::vector<unsigned int> newVector = vetor_atual;
         std::swap(newVector[pos_vazio], newVector[pos_vazio - tamanho_grid]);
 
@@ -53,7 +43,6 @@ std::vector<State *> MotorBusca::getNeighbors(State *estado_atual, int tamanho_g
 
     if (pos_vazio < (total_pecas - tamanho_grid))
     {
-        // std::vector<unsigned int> newVector = copy(estado_atual);
         std::vector<unsigned int> newVector = vetor_atual;
         std::swap(newVector[pos_vazio], newVector[pos_vazio + tamanho_grid]);
 
@@ -63,7 +52,6 @@ std::vector<State *> MotorBusca::getNeighbors(State *estado_atual, int tamanho_g
 
     if (pos_vazio % tamanho_grid != 0)
     {
-        // std::vector<unsigned int> newVector = copy(estado_atual);
         std::vector<unsigned int> newVector = vetor_atual;
         std::swap(newVector[pos_vazio], newVector[pos_vazio - 1]);
 
@@ -73,7 +61,6 @@ std::vector<State *> MotorBusca::getNeighbors(State *estado_atual, int tamanho_g
 
     if ((pos_vazio + 1) % tamanho_grid != 0)
     {
-        // std::vector<unsigned int> newVector = copy(estado_atual);
         std::vector<unsigned int> newVector = vetor_atual;
         std::swap(newVector[pos_vazio], newVector[pos_vazio + 1]);
 
@@ -92,109 +79,6 @@ unsigned int MotorBusca::findZero(const Instancia &instancia)
             return i;
     }
     return 0;
-}
-
-void printState(const std::vector<unsigned int> &state)
-{
-    for (size_t i = 0; i < state.size(); i++)
-    {
-        std::cout << state[i];
-    }
-    std::cout << std::endl;
-}
-
-// distancia de Manhattan
-int MotorBusca::calcula_heuristica(const std::vector<unsigned int> &estado, const std::vector<std::vector<unsigned int>> &matriz_distancia)
-{
-    int h = 0;
-
-    for (size_t pos = 0; pos < estado.size(); pos++)
-    {
-        unsigned int peca = estado[pos];
-
-        if (peca != 0)
-        {
-            h += matriz_distancia[peca][pos];
-        }
-    }
-    return h;
-}
-
-int MotorBusca::calcula_gaschnig(const std::vector<unsigned int> &estado)
-{
-    // Copia temporaria
-    // Obs. Vector muito lento tive que alocar em um vetor estático para ganhar velocidade
-    // std::vector<unsigned int> temp = estado;
-    // int swaps = 0;
-    // int size = temp.size();
-
-    int size = estado.size();
-    unsigned int temp[size];
-
-    // Copiamos os valores manualmente
-    for (int i = 0; i < size; i++)
-    {
-        temp[i] = estado[i];
-    }
-
-    int swaps = 0;
-
-    while (true)
-    {
-        // Verifica se o tabuleiro esta ordenado
-        bool ordenado = true;
-        int primeira_peca_errada = -1;
-
-        for (int i = 0; i < size; i++)
-        {
-            if (temp[i] != (unsigned int)i)
-            {
-                ordenado = false;
-                if (primeira_peca_errada == -1)
-                    primeira_peca_errada = i;
-            }
-        }
-
-        if (ordenado)
-            break;
-
-        // Encontra a posicao do 0 atual
-        int pos_zero = -1;
-        for (int i = 0; i < size; i++)
-        {
-            if (temp[i] == 0)
-            {
-                pos_zero = i;
-                break;
-            }
-        }
-        // Aplica as regras de Gaschnig
-        if (pos_zero == 0)
-        {
-            // Regra: 0 na posicao correta, mas jogo inacabado
-            // A peca 0 deve ser trocada com a primeira peca que estiver fora do lugar
-            std::swap(temp[0], temp[primeira_peca_errada]);
-            swaps++;
-        }
-        else
-        {
-            // Regra: 0 na posicao errada
-            // A peca que deveria estar na posicao atual do 0 deve ser trocada com ele
-            int pos_peca_alvo = -1;
-            for (int i = 0; i < size; i++)
-            {
-                if (temp[i] == (unsigned int)pos_zero)
-                {
-                    pos_peca_alvo = i;
-                    break;
-                }
-            }
-            std::swap(temp[pos_zero], temp[pos_peca_alvo]);
-            swaps++;
-        }
-    }
-
-    return swaps;
 }
 
 void MotorBusca::imprimirCaminho(State *objetivo, int tamanho_grid)
@@ -242,8 +126,6 @@ void MotorBusca::executaA_estrela(Instancia &instancia, int tamanho_grid)
     int h_gaschnig_ini = calcula_gaschnig(instancia.tabuleiro);
     int h_inicial = std::max(h_manhattan_ini, h_gaschnig_ini);
 
-    // int h_inicial = calcula_gaschnig(instancia.tabuleiro);
-
     State *initial_state = new State(instancia.tabuleiro, 0, pos_zero, h_inicial, nullptr);
 
     queue.push(initial_state);
@@ -263,8 +145,6 @@ void MotorBusca::executaA_estrela(Instancia &instancia, int tamanho_grid)
 
         if (isGoal(current->estado, tamanho_grid))
         {
-            // std::cout << current->custo << std::endl;
-            // printState(current->estado);
             imprimirCaminho(current, tamanho_grid);
             break;
         }
@@ -275,7 +155,10 @@ void MotorBusca::executaA_estrela(Instancia &instancia, int tamanho_grid)
         {
             if (!closedSet.count(neighbors[i]->estado))
             {
-                neighbors[i]->custo_h = calcula_heuristica(neighbors[i]->estado, instancia.matriz_distancia);
+                int h_manhattan = calcula_heuristica(neighbors[i]->estado, instancia.matriz_distancia);
+                int h_gaschnig = calcula_gaschnig(neighbors[i]->estado);
+                int h = std::max(h_manhattan, h_gaschnig);
+                neighbors[i]->custo_h = h;
                 queue.push(neighbors[i]);
             }
             else
@@ -289,65 +172,94 @@ void MotorBusca::executaA_estrela(Instancia &instancia, int tamanho_grid)
         std::cout << "Fila vazia! Nenhuma solucao foi encontrada. O mapa foi todo explorado." << std::endl;
     }
 }
-// int recursiveSearch(std::vector<unsigned int> estado, int limite, int g, std::vector<std::vector<unsigned int>> current_path,
-//                                 int &iteracoes)
-// {
-//     int h = calcula_heuristica();
-// }
-
-// void MotorBusca::executaIDA_estrela(const Instancia &instancia, int tamanho_grid)
-// {
-//     int limite = calcula_heuristica();
-//     std::vector<std::vector<unsigned int>> current_path;
-//     current_path.push_back(instancia.tabuleiro);
-//     int result = 0;
-//     int iteracoes = 0;
-
-//     while (true)
-//     {
-//         result = recursiveSearch(instancia.tabuleiro, limite, 0, current_path, iteracoes);
-
-//         if (result == 0)
-//         {
-//             std::cout << "Resultado Encontrado" << std::endl;
-//             std::cout << "Quantidade de Iteracoes" << std::endl;
-//         }
-
-//         else if (result == -1)
-//         {
-//             std::cout << "Este tabuleiro não possui solução" << std::endl;
-//             return;
-//         }
-
-//         limite = result;
-//     }
-//     return;
-// }
-
-void MotorBusca::preencherMatrizDistancia(Instancia &instancia, int tamanho_grid)
+int MotorBusca::recursiveSearch(State *current_state, int limite, int cost, std::unordered_set<std::vector<unsigned int>, HashFunction> &path_state,
+                                int &iterations, std::vector<std::vector<unsigned int>> &distance, int tamanho_grid, std::vector<std::vector<unsigned int>> &current_path)
 {
-    int num_pecas = tamanho_grid * tamanho_grid;
+    int h_manhattan = calcula_heuristica(current_state->estado, distance);
+    int h_gaschnig = calcula_gaschnig(current_state->estado);
+    int h = std::max(h_manhattan, h_gaschnig);
+    int total_cost = h + cost;
 
-    // redimensiona a matriz para [peca][posicao_atual]
-    instancia.matriz_distancia.assign(num_pecas, std::vector<unsigned int>(num_pecas, 0));
+    if (total_cost > limite)
+        return total_cost;
 
-    for (int peca = 1; peca < num_pecas; peca++)
+    if (isGoal(current_state->estado, tamanho_grid))
     {
-        // enconta o local correto da peca
-        int target_idx = peca;
-        int target_row = target_idx / tamanho_grid;
-        int target_col = target_idx % tamanho_grid;
+        State *state = current_state;
+        imprimirCaminho(current_state, tamanho_grid);
+        return 0;
+    }
 
-        for (int pos = 0; pos < num_pecas; pos++)
+    // maior valor de um unsigned int
+    unsigned int max_operations = std::numeric_limits<unsigned int>::max();
+
+    std::vector<State *> neighbors = getNeighbors(current_state, tamanho_grid);
+
+    for (size_t i = 0; i < neighbors.size(); i++)
+    {
+        iterations++;
+        if (path_state.count(neighbors[i]->estado) == 0)
         {
-            int current_row = pos / tamanho_grid;
-            int current_col = pos % tamanho_grid;
+            path_state.insert(neighbors[i]->estado);
+            current_path.push_back(neighbors[i]->estado);
 
-            // fórmula - Distancia de Manhattan: |x1 - x2| + |y1 - y2|
-            int dist = std::abs(current_row - target_row) + std::abs(current_col - target_col);
+            int result_son = recursiveSearch(neighbors[i], limite, cost + 1, path_state, iterations, distance, tamanho_grid, current_path);
+            if (isGoal(current_state->estado, tamanho_grid))
+            {
+                State *state = current_state;
+                imprimirCaminho(current_state, tamanho_grid);
+                return 0;
+            }
 
-            // salva na matriz
-            instancia.matriz_distancia[peca][pos] = dist;
+            if (result_son == max_operations)
+            {
+                std::cout << "Este tabuleiro não possui solução" << std::endl;
+                return;
+            }
+
+            path_state.erase(neighbors[i]->estado);
+            current_path.pop_back();
+            return result_son;
         }
     }
+}
+
+void MotorBusca::executaIDA_estrela(const Instancia &instancia, int tamanho_grid)
+{
+    int h_manhattan_ini = calcula_heuristica(instancia.tabuleiro, instancia.matriz_distancia);
+    int h_gaschnig_ini = calcula_gaschnig(instancia.tabuleiro);
+    int limite = std::max(h_manhattan_ini, h_gaschnig_ini);
+
+    std::unordered_set<std::vector<unsigned int>, HashFunction> path_state;
+    std::vector<std::vector<unsigned int>> current_path;
+
+    path_state.insert(instancia.tabuleiro);
+    current_path.push_back(instancia.tabuleiro);
+    int result = 1;
+    int iterations = 0;
+    std::vector<std::vector<unsigned int>> distancia = instancia.matriz_distancia;
+    unsigned int pos_vazio = findZero(instancia);
+    State *current_state = new State(instancia.tabuleiro, 0, pos_vazio, limite, nullptr);
+
+    unsigned int max_operations = std::numeric_limits<unsigned int>::max();
+
+    while (true)
+    {
+        result = recursiveSearch(current_state, limite, 0, path_state, iterations, distancia, tamanho_grid, current_path);
+
+        if (result == 0)
+        {
+            // o resultado já foi encontrado
+            return;
+        }
+
+        if (result == max_operations)
+        {
+            std::cout << "Este tabuleiro não possui solução" << std::endl;
+            return;
+        }
+
+        limite = result;
+    }
+    return;
 }
