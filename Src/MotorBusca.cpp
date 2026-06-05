@@ -120,6 +120,83 @@ int MotorBusca::calcula_heuristica(const std::vector<unsigned int> &estado, cons
     return h;
 }
 
+int MotorBusca::calcula_gaschnig(const std::vector<unsigned int> &estado)
+{
+    // Copia temporaria
+    // Obs. Vector muito lento tive que alocar em um vetor estático para ganhar velocidade
+    // std::vector<unsigned int> temp = estado;
+    // int swaps = 0;
+    // int size = temp.size();
+
+    int size = estado.size();
+    unsigned int temp[size];
+
+    // Copiamos os valores manualmente
+    for (int i = 0; i < size; i++)
+    {
+        temp[i] = estado[i];
+    }
+
+    int swaps = 0;
+
+    while (true)
+    {
+        // Verifica se o tabuleiro esta ordenado
+        bool ordenado = true;
+        int primeira_peca_errada = -1;
+
+        for (int i = 0; i < size; i++)
+        {
+            if (temp[i] != (unsigned int)i)
+            {
+                ordenado = false;
+                if (primeira_peca_errada == -1)
+                    primeira_peca_errada = i;
+            }
+        }
+
+        if (ordenado)
+            break;
+
+        // Encontra a posicao do 0 atual
+        int pos_zero = -1;
+        for (int i = 0; i < size; i++)
+        {
+            if (temp[i] == 0)
+            {
+                pos_zero = i;
+                break;
+            }
+        }
+        // Aplica as regras de Gaschnig
+        if (pos_zero == 0)
+        {
+            // Regra: 0 na posicao correta, mas jogo inacabado
+            // A peca 0 deve ser trocada com a primeira peca que estiver fora do lugar
+            std::swap(temp[0], temp[primeira_peca_errada]);
+            swaps++;
+        }
+        else
+        {
+            // Regra: 0 na posicao errada
+            // A peca que deveria estar na posicao atual do 0 deve ser trocada com ele
+            int pos_peca_alvo = -1;
+            for (int i = 0; i < size; i++)
+            {
+                if (temp[i] == (unsigned int)pos_zero)
+                {
+                    pos_peca_alvo = i;
+                    break;
+                }
+            }
+            std::swap(temp[pos_zero], temp[pos_peca_alvo]);
+            swaps++;
+        }
+    }
+
+    return swaps;
+}
+
 void MotorBusca::imprimirCaminho(State *objetivo, int tamanho_grid)
 {
     std::vector<State *> caminho;
@@ -161,7 +238,11 @@ void MotorBusca::executaA_estrela(Instancia &instancia, int tamanho_grid)
 
     int pos_zero = findZero(instancia);
 
-    int h_inicial = calcula_heuristica(instancia.tabuleiro, instancia.matriz_distancia);
+    int h_manhattan_ini = calcula_heuristica(instancia.tabuleiro, instancia.matriz_distancia);
+    int h_gaschnig_ini = calcula_gaschnig(instancia.tabuleiro);
+    int h_inicial = std::max(h_manhattan_ini, h_gaschnig_ini);
+
+    // int h_inicial = calcula_gaschnig(instancia.tabuleiro);
 
     State *initial_state = new State(instancia.tabuleiro, 0, pos_zero, h_inicial, nullptr);
 

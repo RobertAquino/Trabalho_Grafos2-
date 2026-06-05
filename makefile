@@ -12,7 +12,7 @@ CC := g++
 # -std=c++17: Padrão moderno do C++
 # -g: Permite depuração (útil para encontrar erros de memória)
 # -IBibliotecas: Permite usar #include "Estruturas.hpp" sem digitar o caminho completo no main
-FLAGS := -Wall -Wextra -std=c++17 -g -IBibliotecas
+FLAGS := -Wall -Wextra -std=c++17 -O3 -IBibliotecas
 
 # Identificação do Sistema Operacional para comandos de terminal
 ifeq ($(OS), Windows_NT)

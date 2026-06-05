@@ -44,18 +44,18 @@ int main()
         cout << "Falha!" << endl;
     }
 
-    cout << "15-PUZZLE" << endl;
-    vector<Instancia> instancias_15puzzle = parser.inicializaParser("Instances/15puzzle_instances.txt", 4);
+    // cout << "15-PUZZLE" << endl;
+    // vector<Instancia> instancias_15puzzle = parser.inicializaParser("Instances/15puzzle_instances.txt", 4);
 
-    if (!instancias_15puzzle.empty())
-    {
-        cout << "Instancia [0]" << endl;
-        motor.executaA_estrela(instancias_15puzzle[0], 4);
-    }
-    else
-    {
-        cout << "Falha!" << endl;
-    }
+    // if (!instancias_15puzzle.empty())
+    // {
+    //     cout << "Instancia [0]" << endl;
+    //     motor.executaA_estrela(instancias_15puzzle[0], 4);
+    // }
+    // else
+    // {
+    //     cout << "Falha!" << endl;
+    // }
 
     return 0;
 }
