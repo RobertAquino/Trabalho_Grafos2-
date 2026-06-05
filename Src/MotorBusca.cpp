@@ -146,6 +146,7 @@ void MotorBusca::executaA_estrela(Instancia &instancia, int tamanho_grid)
         if (isGoal(current->estado, tamanho_grid))
         {
             imprimirCaminho(current, tamanho_grid);
+
             break;
         }
 
@@ -185,7 +186,6 @@ int MotorBusca::recursiveSearch(State *current_state, int limite, int cost, std:
 
     if (isGoal(current_state->estado, tamanho_grid))
     {
-        State *state = current_state;
         imprimirCaminho(current_state, tamanho_grid);
         return 0;
     }
@@ -195,6 +195,7 @@ int MotorBusca::recursiveSearch(State *current_state, int limite, int cost, std:
 
     std::vector<State *> neighbors = getNeighbors(current_state, tamanho_grid);
 
+    int lower_cost = (int)max_operations;
     for (size_t i = 0; i < neighbors.size(); i++)
     {
         iterations++;
@@ -204,24 +205,33 @@ int MotorBusca::recursiveSearch(State *current_state, int limite, int cost, std:
             current_path.push_back(neighbors[i]->estado);
 
             int result_son = recursiveSearch(neighbors[i], limite, cost + 1, path_state, iterations, distance, tamanho_grid, current_path);
-            if (isGoal(current_state->estado, tamanho_grid))
+
+            path_state.erase(neighbors[i]->estado);
+            current_path.pop_back();
+
+            if (result_son == 0)
             {
-                State *state = current_state;
-                imprimirCaminho(current_state, tamanho_grid);
+                for (size_t j = i + 1; j < neighbors.size(); j++)
+                {
+                    delete neighbors[j];
+                }
                 return 0;
             }
 
             if (result_son == max_operations)
             {
                 std::cout << "Este tabuleiro não possui solução" << std::endl;
-                return;
+                return max_operations;
             }
 
-            path_state.erase(neighbors[i]->estado);
-            current_path.pop_back();
-            return result_son;
+            lower_cost = std::min(lower_cost, result_son); // acumula
+        }
+        else
+        {
+            delete neighbors[i];
         }
     }
+    return lower_cost;
 }
 
 void MotorBusca::executaIDA_estrela(const Instancia &instancia, int tamanho_grid)
@@ -233,8 +243,6 @@ void MotorBusca::executaIDA_estrela(const Instancia &instancia, int tamanho_grid
     std::unordered_set<std::vector<unsigned int>, HashFunction> path_state;
     std::vector<std::vector<unsigned int>> current_path;
 
-    path_state.insert(instancia.tabuleiro);
-    current_path.push_back(instancia.tabuleiro);
     int result = 1;
     int iterations = 0;
     std::vector<std::vector<unsigned int>> distancia = instancia.matriz_distancia;
@@ -245,17 +253,24 @@ void MotorBusca::executaIDA_estrela(const Instancia &instancia, int tamanho_grid
 
     while (true)
     {
+        path_state.clear();
+        current_path.clear();
+
+        path_state.insert(instancia.tabuleiro);
+        current_path.push_back(instancia.tabuleiro);
         result = recursiveSearch(current_state, limite, 0, path_state, iterations, distancia, tamanho_grid, current_path);
 
         if (result == 0)
         {
             // o resultado já foi encontrado
-            return;
+            delete current_state;
+            break;
         }
 
         if (result == max_operations)
         {
             std::cout << "Este tabuleiro não possui solução" << std::endl;
+            delete current_state;
             return;
         }
 

@@ -14,11 +14,13 @@ public:
     void executaA_estrela(Instancia &instancia, int tamanho_grid);
 
     // O algoritmo principal
-    // void executarDijkstra(const Instancia &instancia, int tamanho_grid);
+    void executarDijkstra(const Instancia &instancia, int tamanho_grid);
 
     // IDA*
-    // int recursiveSearch(State *current, int limite, Instancia &instancia, int tamanho_grid, std::unordered_set<std::vector<unsigned int>, HashFunction> &path_set, int &iteracoes);
-    // void executaIDA_estrela(const Instancia &instancia, int tamanho_grid);
+    int recursiveSearch(State *current_state, int limite, int cost, std::unordered_set<std::vector<unsigned int>, HashFunction> &path_state,
+                        int &iterations, std::vector<std::vector<unsigned int>> &distance, int tamanho_grid, std::vector<std::vector<unsigned int>> &current_path);
+
+    void executaIDA_estrela(const Instancia &instancia, int tamanho_grid);
 
     void preencherMatrizDistancia(Instancia &instancia, int tamanho_grid);
 
@@ -30,9 +32,6 @@ public:
     void executaIDA_estrela(const Instancia &instancia, int tamanho_grid);
     int recursiveSearch(State *current_state, int limite, int cost, std::unordered_set<std::vector<unsigned int>, HashFunction> &path_state,
                         int &iterations, std::vector<std::vector<unsigned int>> &distance, int tamanho_grid, std::vector<std::vector<unsigned int>> &current_path);
-
-    // heurística de Gaschnig
-    int calcula_gaschnig(const std::vector<unsigned int> &estado);
 };
 
 #endif
