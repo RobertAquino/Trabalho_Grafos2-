@@ -11,6 +11,8 @@ public:
     bool isGoal(const std::vector<unsigned int> &estado_atual, int tamanho_grid);
     // A função que gera as próximas jogadas válidas
     std::vector<State *> getNeighbors(State *estado_atual, int tamanho_grid);
+
+    bool isSolvable(std::vector<unsigned int> estado, int tamanho_grid);
     void executaA_estrela(Instancia &instancia, int tamanho_grid);
 
     // O algoritmo principal

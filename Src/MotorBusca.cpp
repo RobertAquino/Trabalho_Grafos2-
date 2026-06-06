@@ -24,7 +24,33 @@ bool MotorBusca::isGoal(const std::vector<unsigned int> &estado_atual, int grid_
 
     return true;
 }
+bool MotorBusca::isSolvable(std::vector<unsigned int> estado, int tamanho_grid)
+{
+    int inversoes = 0;
+    for (size_t i = 0; i < estado.size(); i++)
+    {
+        for (int j = i + 1; j < estado.size(); j++)
+        {
+            if (estado[i] != 0 && estado[j] != 0 && estado[j] < estado[i])
+                inversoes++;
+        }
+    }
 
+    if (tamanho_grid % 2 != 0)
+        return inversoes % 2 == 0;
+
+    unsigned int zero_line;
+    for (size_t i = 0; i < estado.size(); i++)
+    {
+        if (estado[i] == 0)
+            zero_line = tamanho_grid - (i / tamanho_grid);
+    }
+
+    if (zero_line % 2 == 0)
+        return inversoes % 2 != 0;
+
+    return inversoes % 2 == 0;
+}
 std::vector<State *> MotorBusca::getNeighbors(State *estado_atual, int tamanho_grid)
 {
     std::vector<State *> neighbors;
@@ -115,6 +141,11 @@ void MotorBusca::imprimirCaminho(State *objetivo, int tamanho_grid)
 
 void MotorBusca::executaA_estrela(Instancia &instancia, int tamanho_grid)
 {
+    if (!isSolvable(instancia.tabuleiro, tamanho_grid))
+    {
+        std::cout << "Este tabuleiro é insolúvel" << std::endl;
+        return;
+    }
     preencherMatrizDistancia(instancia, tamanho_grid);
 
     std::priority_queue<State *, std::vector<State *>, Comparador> queue;
@@ -218,12 +249,6 @@ int MotorBusca::recursiveSearch(State *current_state, int limite, int cost, std:
                 return 0;
             }
 
-            if (result_son == max_operations)
-            {
-                std::cout << "Este tabuleiro não possui solução" << std::endl;
-                return max_operations;
-            }
-
             lower_cost = std::min(lower_cost, result_son); // acumula
         }
         else
@@ -236,6 +261,12 @@ int MotorBusca::recursiveSearch(State *current_state, int limite, int cost, std:
 
 void MotorBusca::executaIDA_estrela(const Instancia &instancia, int tamanho_grid)
 {
+    if (!isSolvable(instancia.tabuleiro, tamanho_grid))
+    {
+        std::cout << "Este tabuleiro é insolúvel" << std::endl;
+        return;
+    }
+
     int h_manhattan_ini = calcula_heuristica(instancia.tabuleiro, instancia.matriz_distancia);
     int h_gaschnig_ini = calcula_gaschnig(instancia.tabuleiro);
     int limite = std::max(h_manhattan_ini, h_gaschnig_ini);
@@ -265,13 +296,6 @@ void MotorBusca::executaIDA_estrela(const Instancia &instancia, int tamanho_grid
             // o resultado já foi encontrado
             delete current_state;
             break;
-        }
-
-        if (result == max_operations)
-        {
-            std::cout << "Este tabuleiro não possui solução" << std::endl;
-            delete current_state;
-            return;
         }
 
         limite = result;
