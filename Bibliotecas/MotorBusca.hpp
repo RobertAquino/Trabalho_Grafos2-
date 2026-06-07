@@ -26,8 +26,6 @@ public:
 
     void preencherMatrizDistancia(Instancia &instancia, int tamanho_grid);
 
-    // distância de Manhattan
-    int calcula_heuristica(const std::vector<unsigned int> &estado, const std::vector<std::vector<unsigned int>> &matriz_distancia);
     void imprimirCaminho(State *objetivo, int tamanho_grid);
     unsigned int findZero(const Instancia &instancia);
 };
