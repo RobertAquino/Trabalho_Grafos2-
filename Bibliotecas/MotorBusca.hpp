@@ -1,6 +1,7 @@
 #ifndef MOTOR_BUSCA_HPP
 #define MOTOR_BUSCA_HPP
 
+#include <unordered_set>
 #include "Estruturas.hpp"
 #include <vector>
 
@@ -17,14 +18,12 @@ public:
 
     // O algoritmo principal
     void executarDijkstra(const Instancia &instancia, int tamanho_grid);
-
+    void preencherMatrizDistancia(Instancia &instancia, int tamanho_grid);
     // IDA*
     int recursiveSearch(State *current_state, int limite, int cost, std::unordered_set<std::vector<unsigned int>, HashFunction> &path_state,
                         int &iterations, std::vector<std::vector<unsigned int>> &distance, int tamanho_grid, std::vector<std::vector<unsigned int>> &current_path);
 
-    void executaIDA_estrela(const Instancia &instancia, int tamanho_grid);
-
-    void preencherMatrizDistancia(Instancia &instancia, int tamanho_grid);
+    void executaIDA_estrela(Instancia &instancia, int tamanho_grid);
 
     void imprimirCaminho(State *objetivo, int tamanho_grid);
     unsigned int findZero(const Instancia &instancia);

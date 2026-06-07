@@ -1,4 +1,5 @@
 #include "../Bibliotecas/Heuristicas.hpp"
+#include <cstddef>
 
 // distancia de Manhattan
 int calcula_heuristica(const std::vector<unsigned int> &estado, const std::vector<std::vector<unsigned int>> &matriz_distancia)
@@ -19,11 +20,7 @@ int calcula_heuristica(const std::vector<unsigned int> &estado, const std::vecto
 int calcula_gaschnig(const std::vector<unsigned int> &estado)
 {
     // Copia temporaria
-    // Obs. Vector muito lento tive que alocar em um vetor estático para ganhar velocidade
-    // std::vector<unsigned int> temp = estado;
-    // int swaps = 0;
-    // int size = temp.size();
-
+    // Obs. Vector ficou muito lento tive que alocar em um vetor estático para ganhar velocidade
     int size = estado.size();
     unsigned int temp[size];
 
@@ -92,3 +89,63 @@ int calcula_gaschnig(const std::vector<unsigned int> &estado)
 
     return swaps;
 }
+
+// int calcula_conflito_linear(const std::vector<unsigned int> &estado, int tamanho_grid)
+// {
+//     int conflitos = 0;
+
+//     // Verifica conflito na linha
+//     for (int linha = 0; linha < tamanho_grid; linha++)
+//     {
+//         // Compara par de peças da linha
+//         for (int esq = 0; esq < tamanho_grid - 1; esq++)
+//         {
+//             for (int dir = esq + 1; dir < tamanho_grid; dir++)
+//             {
+//                 unsigned int peca_esq = estado[linha * tamanho_grid + esq];
+//                 unsigned int peca_dir = estado[linha * tamanho_grid + dir];
+
+//                 // Ignora espaco vazio
+//                 if (peca_esq == 0 || peca_dir == 0)
+//                     continue;
+
+//                 // Ambas as pecas pertencem a linha
+//                 if ((peca_esq / tamanho_grid == (unsigned int)linha) && (peca_dir / tamanho_grid == (unsigned int)linha))
+//                 {
+//                     // Estão trocadas
+//                     if (peca_esq > peca_dir)
+//                     {
+//                         conflitos += 2;
+//                     }
+//                 }
+//             }
+//         }
+//     }
+
+//     // Verifica conflito na coluna
+//     for (int coluna = 0; coluna < tamanho_grid; coluna++)
+//     {
+//         for (int cima = 0; cima < tamanho_grid - 1; cima++)
+//         {
+//             for (int baixo = cima + 1; baixo < tamanho_grid; baixo++)
+//             {
+//                 unsigned int peca_cima = estado[cima * tamanho_grid + coluna];
+//                 unsigned int peca_baixo = estado[baixo * tamanho_grid + coluna];
+
+//                 // Ignora espaco vazio
+//                 if (peca_cima == 0 || peca_baixo == 0)
+//                     continue;
+
+//                 // Ambas as pecas pertencem a coluna
+//                 if ((peca_cima % tamanho_grid == (unsigned int)coluna) && (peca_baixo % tamanho_grid == (unsigned int)coluna))
+//                 {
+//                      if(peca_cima > peca_baixo)
+//                      {
+//                          conflitos += 2;
+//                      }
+//                 }
+//             }
+//         }
+//     }
+//     return conflitos;
+// }

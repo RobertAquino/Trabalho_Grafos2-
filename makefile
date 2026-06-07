@@ -2,16 +2,10 @@
 MAIN := main
 
 # Lista de objetos (arquivos .o que serão gerados a partir dos .cpp)
-# Como PuzzleParser e Estruturas são apenas arquivos .hpp (header-only), 
-# eles não geram arquivos .o separados. Temos apenas o main.o por enquanto.
-OBJECTS := main.o MotorBusca.o
+OBJECTS := main.o MotorBusca.o Heuristicas.o
 
 # Compilador e Flags
 CC := g++
-# -Wall -Wextra: Ativa avisos de possíveis erros no código
-# -std=c++17: Padrão moderno do C++
-# -g: Permite depuração (útil para encontrar erros de memória)
-# -IBibliotecas: Permite usar #include "Estruturas.hpp" sem digitar o caminho completo no main
 FLAGS := -Wall -Wextra -std=c++17 -O3 -IBibliotecas
 
 # Identificação do Sistema Operacional para comandos de terminal
@@ -34,17 +28,20 @@ $(OUTPUTMAIN): $(OBJECTS)
 	$(CC) $(FLAGS) $(OBJECTS) -o $(OUTPUTMAIN)
 
 # Regra para compilar o main.o
-# Ele depende do main.cpp e dos headers incluídos na pasta Bibliotecas
-main.o: main.cpp Bibliotecas/Estruturas.hpp Bibliotecas/PuzzleParser.hpp Bibliotecas/MotorBusca.hpp
+main.o: main.cpp Bibliotecas/Estruturas.hpp Bibliotecas/PuzzleParser.hpp Bibliotecas/MotorBusca.hpp Bibliotecas/Heuristicas.hpp
 	$(CC) $(FLAGS) -c main.cpp -o main.o
 
-
-MotorBusca.o: Src/MotorBusca.cpp Bibliotecas/MotorBusca.hpp Bibliotecas/Estruturas.hpp
+# Regra para compilar o MotorBusca.o
+MotorBusca.o: Src/MotorBusca.cpp Bibliotecas/MotorBusca.hpp Bibliotecas/Estruturas.hpp Bibliotecas/Heuristicas.hpp
 	$(CC) $(FLAGS) -c Src/MotorBusca.cpp -o MotorBusca.o
 
-# Limpeza de arquivos temporários (Adaptada para funcionar em Windows e Linux)
+# Regra para compilar o Heuristicas.o
+Heuristicas.o: Src/Heuristicas.cpp Bibliotecas/Heuristicas.hpp
+	$(CC) $(FLAGS) -c Src/Heuristicas.cpp -o Heuristicas.o
+
+# Limpeza de arquivos temporários
 clean:
-	-$(RM) main.o MotorBusca.o
+	-$(RM) main.o MotorBusca.o Heuristicas.o
 	-$(RM) $(OUTPUTMAIN)
 	@echo Limpeza de arquivos .o e executaveis completa!
 

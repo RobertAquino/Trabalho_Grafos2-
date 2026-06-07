@@ -1,7 +1,6 @@
 #include "../Bibliotecas/MotorBusca.hpp"
 #include "../Bibliotecas/Heuristicas.hpp"
 #include <queue>
-#include <unordered_set>
 #include <cmath>
 #include <algorithm>
 #include <iomanip>
@@ -27,29 +26,29 @@ bool MotorBusca::isGoal(const std::vector<unsigned int> &estado_atual, int grid_
 bool MotorBusca::isSolvable(std::vector<unsigned int> estado, int tamanho_grid)
 {
     int inversoes = 0;
-    for (size_t i = 0; i < estado.size(); i++)
+    int size = estado.size();
+    for (int i = 0; i < size; i++)
     {
-        for (int j = i + 1; j < estado.size(); j++)
-        {
+        for (int j = i + 1; j < size; j++)
             if (estado[i] != 0 && estado[j] != 0 && estado[j] < estado[i])
                 inversoes++;
-        }
     }
 
     if (tamanho_grid % 2 != 0)
         return inversoes % 2 == 0;
 
-    unsigned int zero_line;
-    for (size_t i = 0; i < estado.size(); i++)
+    int zero_line = 0;
+    for (int i = 0; i < size; i++)
     {
         if (estado[i] == 0)
             zero_line = tamanho_grid - (i / tamanho_grid);
     }
 
+    std::cout << "Inversoes: " << inversoes << " | Linha do zero: " << zero_line << std::endl;
     if (zero_line % 2 == 0)
-        return inversoes % 2 != 0;
+        return inversoes % 2 == 0;
 
-    return inversoes % 2 == 0;
+    return inversoes % 2 != 0;
 }
 std::vector<State *> MotorBusca::getNeighbors(State *estado_atual, int tamanho_grid)
 {
@@ -138,15 +137,43 @@ void MotorBusca::imprimirCaminho(State *objetivo, int tamanho_grid)
         std::cout << "------------" << std::endl;
     }
 }
+void MotorBusca::preencherMatrizDistancia(Instancia &instancia, int tamanho_grid)
+{
+    int num_pecas = tamanho_grid * tamanho_grid;
 
+    // redimensiona a matriz para [peca][posicao_atual]
+    instancia.matriz_distancia.assign(num_pecas, std::vector<unsigned int>(num_pecas, 0));
+
+    for (int peca = 1; peca < num_pecas; peca++)
+    {
+        // enconta o local correto da peca
+        int target_idx = peca;
+        int target_row = target_idx / tamanho_grid;
+        int target_col = target_idx % tamanho_grid;
+
+        for (int pos = 0; pos < num_pecas; pos++)
+        {
+            int current_row = pos / tamanho_grid;
+            int current_col = pos % tamanho_grid;
+
+            // fórmula - Distancia de Manhattan: |x1 - x2| + |y1 - y2|
+            int dist = std::abs(current_row - target_row) + std::abs(current_col - target_col);
+
+            // salva na matriz
+            instancia.matriz_distancia[peca][pos] = dist;
+        }
+    }
+}
 void MotorBusca::executaA_estrela(Instancia &instancia, int tamanho_grid)
 {
+    preencherMatrizDistancia(instancia, tamanho_grid);
     if (!isSolvable(instancia.tabuleiro, tamanho_grid))
     {
-        std::cout << "Este tabuleiro é insolúvel" << std::endl;
+        std::cout << "Este tabuleiro e insolúvel" << std::endl;
         return;
     }
-    preencherMatrizDistancia(instancia, tamanho_grid);
+
+    std::cout << "Esta instancia e solucionável" << std::endl;
 
     std::priority_queue<State *, std::vector<State *>, Comparador> queue;
     std::unordered_set<std::vector<unsigned int>, HashFunction> closedSet;
@@ -222,12 +249,10 @@ int MotorBusca::recursiveSearch(State *current_state, int limite, int cost, std:
         return 0;
     }
 
-    // maior valor de um unsigned int
-    unsigned int max_operations = std::numeric_limits<unsigned int>::max();
-
     std::vector<State *> neighbors = getNeighbors(current_state, tamanho_grid);
 
-    int lower_cost = (int)max_operations;
+    int lower_cost = std::numeric_limits<int>::max();
+    ;
     for (size_t i = 0; i < neighbors.size(); i++)
     {
         iterations++;
@@ -235,11 +260,13 @@ int MotorBusca::recursiveSearch(State *current_state, int limite, int cost, std:
         {
             path_state.insert(neighbors[i]->estado);
             current_path.push_back(neighbors[i]->estado);
+            neighbors[i]->custo_h = h;
 
             int result_son = recursiveSearch(neighbors[i], limite, cost + 1, path_state, iterations, distance, tamanho_grid, current_path);
 
             path_state.erase(neighbors[i]->estado);
             current_path.pop_back();
+            delete neighbors[i];
 
             if (result_son == 0)
             {
@@ -260,13 +287,17 @@ int MotorBusca::recursiveSearch(State *current_state, int limite, int cost, std:
     return lower_cost;
 }
 
-void MotorBusca::executaIDA_estrela(const Instancia &instancia, int tamanho_grid)
+void MotorBusca::executaIDA_estrela(Instancia &instancia, int tamanho_grid)
 {
+    preencherMatrizDistancia(instancia, tamanho_grid);
+
     if (!isSolvable(instancia.tabuleiro, tamanho_grid))
     {
-        std::cout << "Este tabuleiro é insolúvel" << std::endl;
+        std::cout << "Este tabuleiro e insolúvel" << std::endl;
         return;
     }
+
+    std::cout << "Esta instancia e solucionável" << std::endl;
 
     int h_manhattan_ini = calcula_heuristica(instancia.tabuleiro, instancia.matriz_distancia);
     int h_gaschnig_ini = calcula_gaschnig(instancia.tabuleiro);
@@ -281,8 +312,6 @@ void MotorBusca::executaIDA_estrela(const Instancia &instancia, int tamanho_grid
     unsigned int pos_vazio = findZero(instancia);
     State *current_state = new State(instancia.tabuleiro, 0, pos_vazio, limite, nullptr);
 
-    unsigned int max_operations = std::numeric_limits<unsigned int>::max();
-
     while (true)
     {
         path_state.clear();
@@ -294,7 +323,6 @@ void MotorBusca::executaIDA_estrela(const Instancia &instancia, int tamanho_grid
 
         if (result == 0)
         {
-            // o resultado já foi encontrado
             delete current_state;
             break;
         }
