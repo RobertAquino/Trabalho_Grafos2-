@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <iomanip>
 #include <iostream>
+#include <chrono>
 
 bool MotorBusca::isGoal(const std::vector<unsigned int> &estado_atual, int grid_size)
 {
@@ -256,6 +257,9 @@ int MotorBusca::recursiveSearch(State *current_state, int limite, int cost, std:
     for (size_t i = 0; i < neighbors.size(); i++)
     {
         iterations++;
+        if (iterations % 100000 == 0)
+            std::cout << "Iteracoes: " << iterations << " | Limite atual: " << limite << std::endl;
+
         if (path_state.count(neighbors[i]->estado) == 0)
         {
             path_state.insert(neighbors[i]->estado);

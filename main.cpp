@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <iomanip>
+#include <chrono>
 
 using namespace std;
 
@@ -35,12 +36,18 @@ int main()
     vector<Instancia> instancias_8puzzle = parser.inicializaParser("Instances/8puzzle_instances.txt", 3);
     vector<Instancia> instancias_15puzzle = parser.inicializaParser("Instances/15puzzle_instances.txt", 4);
 
-    for (size_t i = 48; i < instancias_15puzzle.size(); i++)
+    for (size_t i = 34; i < instancias_15puzzle.size(); i++)
     {
         if (!instancias_15puzzle.empty())
         {
+            auto inicio = std::chrono::high_resolution_clock::now();
+
             cout << "Instancia :" << i << endl;
             motor.executaIDA_estrela(instancias_15puzzle[i], 4);
+
+            auto fim = std::chrono::high_resolution_clock::now();
+            auto duracao = std::chrono::duration_cast<std::chrono::milliseconds>(fim - inicio);
+            std::cout << "Tempo: " << duracao.count() << " ms" << std::endl;
         }
         else
         {
