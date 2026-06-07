@@ -1,9 +1,9 @@
+#include "Bibliotecas/Estruturas.hpp"
+#include "Bibliotecas/PuzzleParser.hpp"
+#include "Bibliotecas/MotorBusca.hpp"
 #include <iostream>
 #include <vector>
 #include <iomanip>
-#include "Bibliotecas\Estruturas.hpp"
-#include "Bibliotecas\PuzzleParser.hpp"
-#include "Bibliotecas\MotorBusca.hpp"
 
 using namespace std;
 

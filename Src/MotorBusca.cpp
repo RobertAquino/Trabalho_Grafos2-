@@ -212,6 +212,7 @@ int MotorBusca::recursiveSearch(State *current_state, int limite, int cost, std:
     int h = std::max(h_manhattan, h_gaschnig);
     int total_cost = h + cost;
 
+    // oi
     if (total_cost > limite)
         return total_cost;
 
