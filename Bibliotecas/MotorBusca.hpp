@@ -30,10 +30,6 @@ public:
     int calcula_heuristica(const std::vector<unsigned int> &estado, const std::vector<std::vector<unsigned int>> &matriz_distancia);
     void imprimirCaminho(State *objetivo, int tamanho_grid);
     unsigned int findZero(const Instancia &instancia);
-
-    void executaIDA_estrela(const Instancia &instancia, int tamanho_grid);
-    int recursiveSearch(State *current_state, int limite, int cost, std::unordered_set<std::vector<unsigned int>, HashFunction> &path_state,
-                        int &iterations, std::vector<std::vector<unsigned int>> &distance, int tamanho_grid, std::vector<std::vector<unsigned int>> &current_path);
 };
 
 #endif
