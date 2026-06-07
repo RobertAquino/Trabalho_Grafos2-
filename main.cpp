@@ -52,7 +52,8 @@ int main()
         else
         {
             cout << "Falha!" << endl;
-        }
+            std::cout << "oi";
+        } // oi
     }
     // cout << "15-PUZZLE" << endl;
     // vector<Instancia> instancias_15puzzle = parser.inicializaParser("Instances/15puzzle_instances.txt", 4);
