@@ -155,3 +155,154 @@ int calcula_conflito_linear(const std::vector<unsigned int> &estado, int tamanho
     }
     return conflitos;
 }
+unsigned long long geraID(const int contagem[5][5], int tamanho_grid)
+{
+    unsigned long long id = 0;
+
+    for (int i = 0; i < tamanho_grid; i++)
+    {
+        for (int j = 0; j < tamanho_grid; j++)
+        {
+            id = id << 3;
+            id = id | contagem[i][j];
+        }
+    }
+    return id;
+}
+void gera_matrix_WD(int tamanho_grid, std::unordered_map<unsigned long long, int> &gabarito)
+{
+    StateMatrix stateMatrix;
+    std::queue<StateMatrix> queue;
+
+    for (int i = 0; i < tamanho_grid; i++)
+    {
+        for (int j = 0; j < tamanho_grid; j++)
+        {
+            if (i == j)
+            {
+                if (i == 0)
+                    stateMatrix.matrix[i][j] = tamanho_grid - 1;
+                else
+                    stateMatrix.matrix[i][j] = tamanho_grid;
+            }
+            else
+                stateMatrix.matrix[i][j] = 0;
+        }
+    }
+    stateMatrix.custo = 0;
+    stateMatrix.pos_zero = 0;
+
+    queue.push(stateMatrix);
+    gabarito[geraID(stateMatrix.matrix, tamanho_grid)] = 0;
+
+    while (!queue.empty())
+    {
+        StateMatrix current;
+        current = queue.front();
+        queue.pop();
+
+        int z_line = current.pos_zero;
+
+        if (z_line > 0)
+        {
+            for (int i = 0; i < tamanho_grid; i++)
+            {
+                if (current.matrix[z_line - 1][i] > 0)
+                {
+                    StateMatrix temp = current;
+
+                    temp.matrix[z_line - 1][i]--;
+                    temp.matrix[z_line][i]++;
+
+                    temp.pos_zero = z_line - 1;
+                    temp.custo = current.custo + 1;
+
+                    unsigned long long id = geraID(temp.matrix, tamanho_grid);
+                    if (gabarito.find(id) == gabarito.end())
+                    {
+                        gabarito[id] = temp.custo;
+                        queue.push(temp);
+                    }
+                }
+            }
+        }
+
+        if (z_line < tamanho_grid - 1)
+        {
+            for (int i = 0; i < tamanho_grid; i++)
+            {
+                if (current.matrix[z_line + 1][i] > 0)
+                {
+                    StateMatrix temp = current;
+
+                    temp.matrix[z_line + 1][i]--;
+                    temp.matrix[z_line][i]++;
+
+                    temp.custo = current.custo + 1;
+                    temp.pos_zero = z_line + 1;
+
+                    unsigned long long id = geraID(temp.matrix, tamanho_grid);
+
+                    if (gabarito.find(id) == gabarito.end())
+                    {
+                        gabarito[id] = temp.custo;
+                        queue.push(temp);
+                    }
+                }
+            }
+        }
+    }
+}
+unsigned long long extraiLinhas(std::vector<unsigned int> &estado, int tamanho_grid)
+{
+    int contagem[5][5] = {0};
+
+    for (int i = 0; i < tamanho_grid * tamanho_grid; i++)
+    {
+        unsigned int peca = estado[i];
+
+        if (peca == 0)
+            continue;
+
+        int linha_atual = i / tamanho_grid;
+        int linha_alvo = peca / tamanho_grid;
+
+        contagem[linha_atual][linha_alvo]++;
+    }
+
+    unsigned long long id = geraID(contagem, tamanho_grid);
+
+    return id;
+}
+unsigned long long extraiColunas(std::vector<unsigned int> &estado, int tamanho_grid)
+{
+    int contagem[5][5] = {0};
+
+    for (int i = 0; i < tamanho_grid * tamanho_grid; i++)
+    {
+        unsigned int peca = estado[i];
+
+        if (peca == 0)
+            continue;
+
+        int linha_atual = i % tamanho_grid;
+        int linha_alvo = peca % tamanho_grid;
+
+        contagem[linha_atual][linha_alvo]++;
+    }
+
+    unsigned long long id = geraID(contagem, tamanho_grid);
+
+    return id;
+}
+
+int walkingDistance(std::vector<unsigned int> &estado, std::unordered_map<unsigned long long, int> &gabarito, int tamanho_grid)
+{
+    unsigned long long id_linhas = extraiLinhas(estado, tamanho_grid);
+    unsigned long long id_colunas = extraiColunas(estado, tamanho_grid);
+
+    int custo_linha = gabarito[id_linhas];
+    int custo_coluna = gabarito[id_colunas];
+
+    return custo_linha + custo_coluna;
+}
