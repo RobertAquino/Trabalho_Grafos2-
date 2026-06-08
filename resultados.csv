@@ -1,0 +1,4 @@
+Instancia,Algoritmo,T_Manhattan,Est_Manhattan,T_Gaschnig,Est_Gaschnig,T_Conflito,Est_Conflito,T_Hibrida,Est_Hibrida
+Instancia_11,A*,0.220116,2397,0.286823,75523,5.31194,4221659,0.151525,1316
+Instancia_11,A*,0.150633,2397,0.331783,75523,6.09582,4221659,0.143861,1316
+Instancia_11,IDA*,0.956646,299318,120.006,-1,120.003,-1,0.985023,217352

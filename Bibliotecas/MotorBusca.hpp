@@ -4,6 +4,7 @@
 #include <unordered_set>
 #include "Estruturas.hpp"
 #include <vector>
+#include <chrono>
 
 class MotorBusca
 {
@@ -14,19 +15,22 @@ public:
     std::vector<State *> getNeighbors(State *estado_atual, int tamanho_grid);
 
     bool isSolvable(std::vector<unsigned int> estado, int tamanho_grid);
-    void executaA_estrela(Instancia &instancia, int tamanho_grid);
+    int executaA_estrela(Instancia &instancia, int tamanho_grid, int tipo_heuristica);
 
     // O algoritmo principal
     void executarDijkstra(const Instancia &instancia, int tamanho_grid);
     void preencherMatrizDistancia(Instancia &instancia, int tamanho_grid);
     // IDA*
     int recursiveSearch(State *current_state, int limite, int cost, std::unordered_set<std::vector<unsigned int>, HashFunction> &path_state,
-                        int &iterations, std::vector<std::vector<unsigned int>> &distance, int tamanho_grid, std::vector<std::vector<unsigned int>> &current_path);
+                        int &iterations, std::vector<std::vector<unsigned int>> &distance, int tamanho_grid, std::vector<std::vector<unsigned int>> &current_path, int tipo_heuristica);
 
-    void executaIDA_estrela(Instancia &instancia, int tamanho_grid);
+    int executaIDA_estrela(Instancia &instancia, int tamanho_grid, int tipo_heuristica);
 
     void imprimirCaminho(State *objetivo, int tamanho_grid);
     unsigned int findZero(const Instancia &instancia);
+
+private:
+    std::chrono::steady_clock::time_point tempo_limite;
 };
 
 #endif
