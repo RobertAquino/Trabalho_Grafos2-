@@ -34,11 +34,12 @@ int main()
     vector<Instancia> instancias_8puzzle = parser.inicializaParser("Instances/8puzzle_instances.txt", 3);
     vector<Instancia> instancias_15puzzle = parser.inicializaParser("Instances/15puzzle_instances.txt", 4);
 
-    std::ofstream arquivos[5];
-    std::string nomes_h[] = {"", "Manhattan", "Gaschnig", "Conflito_Linear", "Manhattan_E_Conflito_Linear"};
-    std::string nomes_arquivos[] = {"", "resultados_Manhattan.csv", "resultados_Gaschnig.csv", "resultados_Conflito.csv", "resultados_Manhattan_Conflito.csv"};
+    std::ofstream arquivos[6];
+    std::string nomes_h[] = {"", "Manhattan", "Gaschnig", "Conflito_Linear", "Manhattan_E_Conflito_Linear", "Walking_Distance"};
+    std::string nomes_arquivos[] = {"", "resultados_Manhattan.csv", "resultados_Gaschnig.csv", "resultados_Conflito.csv", "resultados_Manhattan_Conflito.csv", "resultados_walking_Distance.csv"};
 
-    for (int h = 1; h <= 4; h++)
+    // Cria cabeçalho nos arquivos
+    for (int h = 1; h <= 5; h++)
     {
         arquivos[h].open(nomes_arquivos[h], std::ios::app);
         arquivos[h].seekp(0, std::ios::end);
@@ -48,12 +49,12 @@ int main()
         }
     }
 
-    for (int i = 11; i < 12; i++)
+    for (int i = 0; i < 20; i++)
     {
         std::string nome_instancia = "Instancia_" + std::to_string(i);
         if (!instancias_15puzzle.empty())
         {
-            for (int aux = 1; aux <= 4; aux++)
+            for (int aux = 5; aux <= 5; aux++)
             {
                 MotorBusca motor;
                 std::cout << "\nInstancia " << i << " | Heuristica: " << nomes_h[aux] << std::flush;

@@ -1,6 +1,7 @@
 #ifndef MOTOR_BUSCA_HPP
 #define MOTOR_BUSCA_HPP
 
+#include <unordered_map>
 #include <unordered_set>
 #include "Estruturas.hpp"
 #include <vector>
@@ -22,7 +23,8 @@ public:
     void preencherMatrizDistancia(Instancia &instancia, int tamanho_grid);
     // IDA*
     int recursiveSearch(State *current_state, int limite, int cost, std::unordered_set<std::vector<unsigned int>, HashFunction> &path_state,
-                        int &iterations, std::vector<std::vector<unsigned int>> &distance, int tamanho_grid, std::vector<std::vector<unsigned int>> &current_path, int tipo_heuristica);
+                        int &iterations, std::vector<std::vector<unsigned int>> &distance, int tamanho_grid, std::vector<std::vector<unsigned int>> &current_path, int tipo_heuristica,
+                        std::unordered_map<unsigned long long, int> &gabarito);
 
     int executaIDA_estrela(Instancia &instancia, int tamanho_grid, int tipo_heuristica);
 
