@@ -6,7 +6,6 @@
 int calcula_heuristica(const std::vector<unsigned int> &estado, const std::vector<std::vector<unsigned int>> &matriz_distancia)
 {
     int h = 0;
-    int tamanho_grid = std::sqrt(estado.size());
 
     for (size_t pos = 0; pos < estado.size(); pos++)
     {

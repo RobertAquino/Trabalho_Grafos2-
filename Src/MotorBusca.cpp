@@ -360,7 +360,7 @@ int MotorBusca::executaIDA_estrela(Instancia &instancia, int tamanho_grid, int t
     unsigned int pos_vazio = findZero(instancia);
     State *current_state = new State(instancia.tabuleiro, 0, pos_vazio, limite, nullptr);
 
-    tempo_limite = std::chrono::steady_clock::now() + std::chrono::seconds(60);
+    tempo_limite = std::chrono::steady_clock::now() + std::chrono::seconds(600);
 
     while (true)
     {

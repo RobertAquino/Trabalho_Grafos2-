@@ -36,7 +36,7 @@ int main()
 
     std::ofstream arquivos[6];
     std::string nomes_h[] = {"", "Manhattan", "Gaschnig", "Conflito_Linear", "Manhattan_E_Conflito_Linear", "Walking_Distance"};
-    std::string nomes_arquivos[] = {"", "8_resultados_Manhattan.csv", "8_resultados_Gaschnig.csv", "8_resultados_Conflito.csv", "8_resultados_Manhattan_Conflito.csv", "resultados_walking_Distance.csv"};
+    std::string nomes_arquivos[] = {"", "resultados_Manhattan.csv", "resultados_Gaschnig.csv", "resultados_Conflito.csv", "resultados_Manhattan_Conflito.csv", "resultados_walking_Distance.csv"};
 
     // Cria cabeçalho nos arquivos
     for (int h = 1; h <= 5; h++)
@@ -49,24 +49,24 @@ int main()
         }
     }
 
-    for (int i = 0; i < (int)instancias_8puzzle.size(); i++)
+    for (int i = 0; i < (int)instancias_15puzzle.size(); i++)
     {
         std::string nome_instancia = "Instancia_" + std::to_string(i);
-        if (!instancias_8puzzle.empty())
+        if (!instancias_15puzzle.empty())
         {
-            for (int aux = 1; aux <= 5; aux++)
+            for (int aux = 5; aux <= 5; aux++)
             {
                 MotorBusca motor;
                 std::cout << "\nInstancia " << i << " | Heuristica: " << nomes_h[aux] << std::flush;
 
                 auto inicio = std::chrono::high_resolution_clock::now();
 
-                int estados_avaliados = motor.executaIDA_estrela(instancias_8puzzle[i], 3, aux);
+                int estados_avaliados = motor.executaIDA_estrela(instancias_15puzzle[i], 4, aux);
 
                 auto fim = std::chrono::high_resolution_clock::now();
                 std::chrono::duration<double> duracao = fim - inicio;
 
-                arquivos[aux] << nome_instancia << ",A*," << duracao.count() << "," << estados_avaliados << "\n";
+                arquivos[aux] << nome_instancia << ",IDA*," << duracao.count() << "," << estados_avaliados << "\n";
                 arquivos[aux].flush();
             }
         }
