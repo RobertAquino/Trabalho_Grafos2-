@@ -36,8 +36,7 @@ int main()
         }
     }
 
-    // 2. CORRIGE O IF PARA O VETOR CORRETO
-    if (!instancias_8puzzle.empty())
+    for (int i = 0; i < 20; i++)
     {
         // 3. RODA PELO TAMANHO EXATO DO VETOR (evita Segfault)
         for (size_t i = 0; i < instancias_8puzzle.size(); i++)
@@ -61,20 +60,46 @@ int main()
                 arquivos[aux].flush();
             }
         }
-    }
-    else
-    {
-        cout << "Falha! Ficheiro do 15-puzzle vazio ou nao encontrado." << endl;
-    }
-
-    // 4. FECHA O FICHEIRO CORRETO (5)
-    for (int h = 5; h <= 5; h++)
-    {
-        if (arquivos[h].is_open())
+        else
         {
-            arquivos[h].close();
+            cout << "Falha!" << endl;
         }
     }
+    for (int h = 1; h <= 4; h++)
+        arquivos[h].close();
+
+    // for (size_t i = 34; i < instancias_15puzzle.size(); i++)
+    // {
+    //     if (!instancias_15puzzle.empty())
+    //     {
+    //         auto inicio = std::chrono::high_resolution_clock::now();
+
+    //         cout << "Instancia :" << i << endl;
+    //         motor.executaIDA_estrela(instancias_15puzzle[i], 4);
+
+    //         auto fim = std::chrono::high_resolution_clock::now();
+    //         auto duracao = std::chrono::duration_cast<std::chrono::milliseconds>(fim - inicio);
+    //         std::cout << "Tempo: " << duracao.count() << " ms" << std::endl;
+    //     }
+    //     else
+    //     {
+    //         cout << "Falha!" << endl;
+    //         std::cout << "oi";
+    //     } // oi
+    // }
+    // cout << "15-PUZZLE" << endl;
+    // vector<Instancia> instancias_15puzzle = parser.inicializaParser("Instances/15puzzle_instances.txt", 4);
+
+    // if (!instancias_15puzzle.empty())
+    // {
+    //     cout << "Instancia [0]" << endl;
+    //     // motor.executaA_estrela(instancias_15puzzle[0], 4);
+    //     motor.executaIDA_estrela(instancias_15puzzle[18], 4);
+    // }
+    // else
+    // {
+    //     cout << "Falha!" << endl;
+    // }
 
     return 0;
 }

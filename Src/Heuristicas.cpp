@@ -16,8 +16,7 @@ static bool wd_inicializado = false;
 int calcula_heuristica(const std::vector<unsigned int> &estado, const std::vector<std::vector<unsigned int>> &matriz_distancia)
 {
     int h = 0;
-
-    int tamanho_grid = (estado.size() == 16) ? 4 : 3;
+    int tamanho_grid = std::sqrt(estado.size());
 
     for (size_t pos = 0; pos < estado.size(); pos++)
     {
@@ -28,11 +27,7 @@ int calcula_heuristica(const std::vector<unsigned int> &estado, const std::vecto
             h += matriz_distancia[peca][pos];
         }
     }
-    // return h;
-
-    int h_conflito = calcula_conflito_linear(estado, tamanho_grid);
-
-    return h + h_conflito;
+    return h;
 }
 int calcula_gaschnig(const std::vector<unsigned int> &estado)
 {
