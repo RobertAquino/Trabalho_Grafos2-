@@ -179,9 +179,6 @@ int MotorBusca::executaA_estrela(Instancia &instancia, int tamanho_grid, int tip
     std::unordered_set<std::vector<unsigned int>, HashFunction> closedSet;
     std::unordered_map<unsigned long long, int> gabarito;
 
-    if (tipo_heuristica == 5)
-        gera_matrix_WD(tamanho_grid, gabarito);
-
     int pos_zero = findZero(instancia);
     int h_inicial = 0;
 
@@ -195,7 +192,7 @@ int MotorBusca::executaA_estrela(Instancia &instancia, int tamanho_grid, int tip
         h_inicial = calcula_heuristica(instancia.tabuleiro, instancia.matriz_distancia) + calcula_conflito_linear(instancia.tabuleiro, tamanho_grid);
     else if (tipo_heuristica == 5)
     {
-        h_inicial = walkingDistance(instancia.tabuleiro, gabarito, tamanho_grid);
+        h_inicial = walkingDistance(instancia.tabuleiro, tamanho_grid);
     }
 
     State *initial_state = new State(instancia.tabuleiro, 0, pos_zero, h_inicial, nullptr);
@@ -240,7 +237,15 @@ int MotorBusca::executaA_estrela(Instancia &instancia, int tamanho_grid, int tip
                 else if (tipo_heuristica == 4)
                     h = calcula_heuristica(neighbors[i]->estado, instancia.matriz_distancia) + calcula_conflito_linear(neighbors[i]->estado, tamanho_grid);
                 else if (tipo_heuristica == 5)
-                    h_inicial = walkingDistance(instancia.tabuleiro, gabarito, tamanho_grid);
+                    h = walkingDistance(neighbors[i]->estado, tamanho_grid);
+                else if (tipo_heuristica == 6)
+                {
+                    int h_manhattan = calcula_heuristica(neighbors[i]->estado, instancia.matriz_distancia);
+                    int h_gaschnig = calcula_gaschnig(neighbors[i]->estado);
+                    int h_mc = h_manhattan + calcula_conflito_linear(neighbors[i]->estado, tamanho_grid);
+                    int h_wd = walkingDistance(neighbors[i]->estado, tamanho_grid);
+                    h = std::max({h_gaschnig, h_mc, h_wd});
+                }
 
                 neighbors[i]->custo_h = h;
                 queue.push(neighbors[i]);
@@ -258,12 +263,8 @@ int MotorBusca::executaA_estrela(Instancia &instancia, int tamanho_grid, int tip
     return estados_avaliados;
 }
 int MotorBusca::recursiveSearch(State *current_state, int limite, int cost, std::unordered_set<std::vector<unsigned int>, HashFunction> &path_state,
-                                int &iterations, std::vector<std::vector<unsigned int>> &distance, int tamanho_grid, std::vector<std::vector<unsigned int>> &current_path, int tipo_heuristica,
-                                std::unordered_map<unsigned long long, int> &gabarito)
+                                int &iterations, std::vector<std::vector<unsigned int>> &distance, int tamanho_grid, std::vector<std::vector<unsigned int>> &current_path, int tipo_heuristica)
 {
-    if (std::chrono::steady_clock::now() > tempo_limite)
-        return -1;
-
     int h = 0;
     if (tipo_heuristica == 1)
         h = calcula_heuristica(current_state->estado, distance);
@@ -274,7 +275,15 @@ int MotorBusca::recursiveSearch(State *current_state, int limite, int cost, std:
     else if (tipo_heuristica == 4)
         h = calcula_heuristica(current_state->estado, distance) + calcula_conflito_linear(current_state->estado, tamanho_grid);
     else if (tipo_heuristica == 5)
-        h = walkingDistance(current_state->estado, gabarito, tamanho_grid);
+        h = walkingDistance(current_state->estado, tamanho_grid);
+    else if (tipo_heuristica == 6)
+    {
+        int h_manhattan = calcula_heuristica(current_state->estado, distance);
+        int h_gaschnig = calcula_gaschnig(current_state->estado);
+        int h_mc = h_manhattan + calcula_conflito_linear(current_state->estado, tamanho_grid);
+        int h_wd = walkingDistance(current_state->estado, tamanho_grid);
+        h = std::max({h_gaschnig, h_mc, h_wd});
+    }
 
     int total_cost = h + cost;
 
@@ -299,7 +308,7 @@ int MotorBusca::recursiveSearch(State *current_state, int limite, int cost, std:
             current_path.push_back(neighbors[i]->estado);
             neighbors[i]->custo_h = h;
 
-            int result_son = recursiveSearch(neighbors[i], limite, cost + 1, path_state, iterations, distance, tamanho_grid, current_path, tipo_heuristica, gabarito);
+            int result_son = recursiveSearch(neighbors[i], limite, cost + 1, path_state, iterations, distance, tamanho_grid, current_path, tipo_heuristica);
 
             path_state.erase(neighbors[i]->estado);
             current_path.pop_back();
@@ -337,9 +346,6 @@ int MotorBusca::executaIDA_estrela(Instancia &instancia, int tamanho_grid, int t
     std::cout << "Esta instancia e solucionável" << std::endl;
     std::unordered_map<unsigned long long, int> gabarito;
 
-    if (tipo_heuristica == 5)
-        gera_matrix_WD(tamanho_grid, gabarito);
-
     int limite = 0;
     if (tipo_heuristica == 1)
         limite = calcula_heuristica(instancia.tabuleiro, instancia.matriz_distancia);
@@ -350,7 +356,15 @@ int MotorBusca::executaIDA_estrela(Instancia &instancia, int tamanho_grid, int t
     else if (tipo_heuristica == 4)
         limite = calcula_heuristica(instancia.tabuleiro, instancia.matriz_distancia) + calcula_conflito_linear(instancia.tabuleiro, tamanho_grid);
     else if (tipo_heuristica == 5)
-        limite = walkingDistance(instancia.tabuleiro, gabarito, tamanho_grid);
+        limite = walkingDistance(instancia.tabuleiro, tamanho_grid);
+    else if (tipo_heuristica == 6)
+    {
+        int h_manhattan = calcula_heuristica(instancia.tabuleiro, instancia.matriz_distancia);
+        int h_gaschnig = calcula_gaschnig(instancia.tabuleiro);
+        int h_mc = h_manhattan + calcula_conflito_linear(instancia.tabuleiro, tamanho_grid);
+        int h_wd = walkingDistance(instancia.tabuleiro, tamanho_grid);
+        limite = std::max({h_gaschnig, h_mc, h_wd});
+    }
     std::unordered_set<std::vector<unsigned int>, HashFunction> path_state;
     std::vector<std::vector<unsigned int>> current_path;
 
@@ -360,8 +374,6 @@ int MotorBusca::executaIDA_estrela(Instancia &instancia, int tamanho_grid, int t
     unsigned int pos_vazio = findZero(instancia);
     State *current_state = new State(instancia.tabuleiro, 0, pos_vazio, limite, nullptr);
 
-    tempo_limite = std::chrono::steady_clock::now() + std::chrono::seconds(60);
-
     while (true)
     {
         path_state.clear();
@@ -369,17 +381,12 @@ int MotorBusca::executaIDA_estrela(Instancia &instancia, int tamanho_grid, int t
 
         path_state.insert(instancia.tabuleiro);
         current_path.push_back(instancia.tabuleiro);
-        result = recursiveSearch(current_state, limite, 0, path_state, iterations, distancia, tamanho_grid, current_path, tipo_heuristica, gabarito);
+        result = recursiveSearch(current_state, limite, 0, path_state, iterations, distancia, tamanho_grid, current_path, tipo_heuristica);
 
         if (result == 0)
         {
             delete current_state;
             break;
-        }
-        else if (result == -1)
-        {
-            std::cout << "Timeout" << std::endl;
-            return -1;
         }
 
         limite = result;

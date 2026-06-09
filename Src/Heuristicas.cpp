@@ -1,12 +1,23 @@
 #include "../Bibliotecas/Heuristicas.hpp"
 #include <cstddef>
 #include <math.h>
+#include <iostream>
+
+struct WDEntry
+{
+    unsigned long long id;
+    int custo;
+};
+
+static WDEntry wd_table[WD_TABLE_SIZE];
+static bool wd_inicializado = false;
 
 // distancia de Manhattan
 int calcula_heuristica(const std::vector<unsigned int> &estado, const std::vector<std::vector<unsigned int>> &matriz_distancia)
 {
     int h = 0;
-    int tamanho_grid = std::sqrt(estado.size());
+
+    int tamanho_grid = (estado.size() == 16) ? 4 : 3;
 
     for (size_t pos = 0; pos < estado.size(); pos++)
     {
@@ -169,8 +180,44 @@ unsigned long long geraID(const int contagem[5][5], int tamanho_grid)
     }
     return id;
 }
-void gera_matrix_WD(int tamanho_grid, std::unordered_map<unsigned long long, int> &gabarito)
+
+// Função para SALVAR no vetor
+inline void wd_set(unsigned long long id, int valor)
 {
+    // Mistura as partes altas e baixas do ID com XOR para evitar clusters
+    unsigned long long hash = id ^ (id >> 16) ^ (id >> 32);
+    unsigned int pos = hash % WD_TABLE_SIZE;
+
+    while (wd_table[pos].id != 0 && wd_table[pos].id != id)
+    {
+        pos = (pos + 1) % WD_TABLE_SIZE;
+    }
+
+    wd_table[pos].id = id;
+    wd_table[pos].custo = valor;
+}
+
+inline int wd_get(unsigned long long id)
+{
+    // A mesma mistura na hora de buscar
+    unsigned long long hash = id ^ (id >> 16) ^ (id >> 32);
+    unsigned int pos = hash % WD_TABLE_SIZE;
+
+    while (wd_table[pos].id != 0)
+    {
+        if (wd_table[pos].id == id)
+            return wd_table[pos].custo;
+        pos = (pos + 1) % WD_TABLE_SIZE;
+    }
+    return 0;
+}
+void gera_matrix_WD(int tamanho_grid)
+{
+    if (wd_inicializado)
+        return; // TRAVA: Se já rodou, não faz de novo!
+
+    std::memset(wd_table, 0, sizeof(wd_table));
+
     StateMatrix stateMatrix;
     std::queue<StateMatrix> queue;
 
@@ -193,7 +240,9 @@ void gera_matrix_WD(int tamanho_grid, std::unordered_map<unsigned long long, int
     stateMatrix.pos_zero = 0;
 
     queue.push(stateMatrix);
-    gabarito[geraID(stateMatrix.matrix, tamanho_grid)] = 0;
+
+    unsigned long long id_inicial = geraID(stateMatrix.matrix, tamanho_grid);
+    wd_set(id_inicial, 0);
 
     while (!queue.empty())
     {
@@ -218,9 +267,9 @@ void gera_matrix_WD(int tamanho_grid, std::unordered_map<unsigned long long, int
                     temp.custo = current.custo + 1;
 
                     unsigned long long id = geraID(temp.matrix, tamanho_grid);
-                    if (gabarito.find(id) == gabarito.end())
+                    if (id != id_inicial && wd_get(id) == 0)
                     {
-                        gabarito[id] = temp.custo;
+                        wd_set(id, temp.custo);
                         queue.push(temp);
                     }
                 }
@@ -243,66 +292,64 @@ void gera_matrix_WD(int tamanho_grid, std::unordered_map<unsigned long long, int
 
                     unsigned long long id = geraID(temp.matrix, tamanho_grid);
 
-                    if (gabarito.find(id) == gabarito.end())
+                    if (id != id_inicial && wd_get(id) == 0)
                     {
-                        gabarito[id] = temp.custo;
+                        wd_set(id, temp.custo);
                         queue.push(temp);
                     }
                 }
             }
         }
     }
+    wd_inicializado = true;
 }
-unsigned long long extraiLinhas(std::vector<unsigned int> &estado, int tamanho_grid)
+int walkingDistance(std::vector<unsigned int> &estado, int tamanho_grid)
 {
-    int contagem[5][5] = {0};
-
-    for (int i = 0; i < tamanho_grid * tamanho_grid; i++)
+    if (tamanho_grid == 4)
     {
-        unsigned int peca = estado[i];
+        unsigned long long id_linhas = 0;
+        unsigned long long id_colunas = 0;
 
-        if (peca == 0)
-            continue;
+        for (int i = 0; i < 16; i++)
+        {
+            unsigned int peca = estado[i];
+            if (peca == 0)
+                continue;
 
-        int linha_atual = i / tamanho_grid;
-        int linha_alvo = peca / tamanho_grid;
+            int r_atual = i >> 2;
+            int r_alvo = peca >> 2;
 
-        contagem[linha_atual][linha_alvo]++;
+            int c_atual = i & 3;
+            int c_alvo = peca & 3;
+
+            int shift_linha = 45 - (((r_atual << 2) | r_alvo) * 3);
+            int shift_coluna = 45 - (((c_atual << 2) | c_alvo) * 3);
+
+            id_linhas += (1ULL << shift_linha);
+            id_colunas += (1ULL << shift_coluna);
+        }
+
+        return wd_get(id_linhas) + wd_get(id_colunas);
     }
-
-    unsigned long long id = geraID(contagem, tamanho_grid);
-
-    return id;
-}
-unsigned long long extraiColunas(std::vector<unsigned int> &estado, int tamanho_grid)
-{
-    int contagem[5][5] = {0};
-
-    for (int i = 0; i < tamanho_grid * tamanho_grid; i++)
+    else
     {
-        unsigned int peca = estado[i];
+        int contagem_linhas[5][5] = {0};
+        int contagem_colunas[5][5] = {0};
+        int total_pecas = tamanho_grid * tamanho_grid;
 
-        if (peca == 0)
-            continue;
+        for (int i = 0; i < total_pecas; i++)
+        {
+            unsigned int peca = estado[i];
+            if (peca == 0)
+                continue;
 
-        int linha_atual = i % tamanho_grid;
-        int linha_alvo = peca % tamanho_grid;
+            contagem_linhas[i / tamanho_grid][peca / tamanho_grid]++;
+            contagem_colunas[i % tamanho_grid][peca % tamanho_grid]++;
+        }
 
-        contagem[linha_atual][linha_alvo]++;
+        unsigned long long id_linhas = geraID(contagem_linhas, tamanho_grid);
+        unsigned long long id_colunas = geraID(contagem_colunas, tamanho_grid);
+
+        return wd_get(id_linhas) + wd_get(id_colunas);
     }
-
-    unsigned long long id = geraID(contagem, tamanho_grid);
-
-    return id;
-}
-
-int walkingDistance(std::vector<unsigned int> &estado, std::unordered_map<unsigned long long, int> &gabarito, int tamanho_grid)
-{
-    unsigned long long id_linhas = extraiLinhas(estado, tamanho_grid);
-    unsigned long long id_colunas = extraiColunas(estado, tamanho_grid);
-
-    int custo_linha = gabarito[id_linhas];
-    int custo_coluna = gabarito[id_colunas];
-
-    return custo_linha + custo_coluna;
 }

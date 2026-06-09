@@ -1,6 +1,9 @@
 #ifndef HEURISTICAS_HPP
 #define HEURISTICAS_HPP
 
+#define WD_TABLE_SIZE 1000033
+
+#include <cstring>
 #include <vector>
 #include <unordered_map>
 #include <queue>
@@ -17,8 +20,8 @@ int calcula_gaschnig(const std::vector<unsigned int> &estado);
 int calcula_conflito_linear(const std::vector<unsigned int> &estado, int tamanho_grid);
 
 unsigned long long geraID(const int contagem[5][5], int tamanho_grid);
-void gera_matrix_WD(int tamanho_grid, std::unordered_map<unsigned long long, int> &gabarito);
+void gera_matrix_WD(int tamanho_grid);
 unsigned long long extraiLinhas(std::vector<unsigned int> &estado, int tamanho_grid);
 unsigned long long extraiColunas(std::vector<unsigned int> &estado, int tamanho_grid);
-int walkingDistance(std::vector<unsigned int> &estado, std::unordered_map<unsigned long long, int> &gabarito, int tamanho_grid);
+int walkingDistance(std::vector<unsigned int> &estado, int tamanho_grid);
 #endif
