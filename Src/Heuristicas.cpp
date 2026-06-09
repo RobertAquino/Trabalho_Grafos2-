@@ -2,7 +2,7 @@
 #include <cstddef>
 #include <math.h>
 
-// distancia de Manhattan
+// dist. de Manhattan
 int calcula_heuristica(const std::vector<unsigned int> &estado, const std::vector<std::vector<unsigned int>> &matriz_distancia)
 {
     int h = 0;
