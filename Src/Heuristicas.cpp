@@ -17,11 +17,7 @@ int calcula_heuristica(const std::vector<unsigned int> &estado, const std::vecto
             h += matriz_distancia[peca][pos];
         }
     }
-    // return h;
-
-    int h_conflito = calcula_conflito_linear(estado, tamanho_grid);
-
-    return h + h_conflito;
+    return h;
 }
 int calcula_gaschnig(const std::vector<unsigned int> &estado)
 {
